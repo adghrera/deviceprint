@@ -1,6 +1,6 @@
 {
   "name": "deviceprint",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A JavaScript library for computing unique device fingerprints based on browser and device characteristics",
   "main": "src/deviceprint.js",
   "scripts": {

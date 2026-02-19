@@ -1,6 +1,6 @@
 # DevicePrint
 
-> **Note**: This library was generated using AI (GitHub Copilot with Claude Sonnet 4.5) as an original implementation.
+> **Note**: This library was generated using AI as an original implementation.
 
 A lightweight JavaScript library for computing unique device fingerprints based on browser and device characteristics.
 
@@ -8,17 +8,53 @@ A lightweight JavaScript library for computing unique device fingerprints based 
 
 DevicePrint collects and analyzes various browser and device attributes to create a unique fingerprint:
 
-- **Browser Information**: User agent, language, plugins, Do Not Track settings
-- **Display Properties**: Screen resolution, color depth, available screen size
-- **System Information**: Platform, CPU class, hardware concurrency, device memory
-- **Canvas Fingerprinting**: Unique rendering characteristics
-- **WebGL Fingerprinting**: Graphics card vendor and renderer information
-- **Audio Fingerprinting**: Audio context characteristics
-- **Font Detection**: Installed system fonts
-- **Storage APIs**: LocalStorage, SessionStorage, IndexedDB availability
-- **Touch Support**: Touch event and max touch points detection
-- **Timezone**: Offset and timezone name
-- **Consistency Checks**: Detects potential spoofing or discrepancies
+### Core Features
+- **🎛️ Configurable**: Choose from DEFAULT, EXTENDED, or FULL presets, or select individual signals
+- **⚡ Performance**: Collect only the signals you need for optimal performance
+- **🔒 Privacy-Aware**: DEFAULT preset requires no permissions
+- **📊 40+ Signals**: Comprehensive device and browser fingerprinting
+
+### Signal Categories
+
+**Browser & System Information**
+- User agent, language, platform, CPU class
+- Hardware concurrency, device memory
+- Plugins, Do Not Track settings
+
+**Display & Graphics**
+- Screen resolution, color depth, orientation
+- Canvas fingerprinting with unique rendering
+- WebGL fingerprinting with extended parameters
+- Graphics card vendor and renderer information
+
+**Media & Codecs**
+- Audio fingerprinting via audio context
+- Video/audio codec support detection
+- Speech synthesis voices
+- Media devices enumeration
+
+**User Preferences**
+- Media preferences (dark mode, reduced motion, high contrast)
+- Locale and internationalization settings
+- Pointer capabilities (touch, hover, fine/coarse)
+
+**Advanced Signals**
+- Font detection (installed system fonts)
+- Math constants precision fingerprinting
+- Network information (connection type, speed)
+- Battery status and level
+- Performance benchmarking
+- Permission statuses
+- Gamepad detection
+
+**Consistency & Anti-Spoofing**
+- Detects language inconsistencies
+- Resolution mismatch detection
+- OS and browser information validation
+- Ad blocker detection
+
+### Storage APIs
+- LocalStorage, SessionStorage, IndexedDB availability
 
 ## Installation
 
@@ -41,14 +77,59 @@ npm install deviceprint
 ### Basic Usage
 
 ```javascript
-// Create a new DevicePrint instance
+// Create a new DevicePrint instance with default settings
 const devicePrint = new DevicePrint();
 
 // Generate the fingerprint
 devicePrint.generate().then(result => {
   console.log('Fingerprint:', result.fingerprint);
   console.log('Components:', result.components);
+  console.log('Signals used:', result.signalsUsed);
 });
+```
+
+### Configuration & Presets
+
+DevicePrint supports three preset configurations:
+
+**DEFAULT** - Fast, privacy-respecting signals (no permissions required)
+```javascript
+const devicePrint = new DevicePrint({ signals: 'DEFAULT' });
+// Includes: userAgent, language, screen info, timezone, canvas, webgl, etc.
+```
+
+**EXTENDED** - Additional signals for better uniqueness
+```javascript
+const devicePrint = new DevicePrint({ signals: 'EXTENDED' });
+// Adds: media preferences, locale info, fonts, audio, codec support, etc.
+```
+
+**FULL** - All available signals (may request permissions)
+```javascript
+const devicePrint = new DevicePrint({ signals: 'FULL' });
+// Adds: battery, network info, media devices, permissions, etc.
+```
+
+**Custom Signals** - Choose specific signals
+```javascript
+const devicePrint = new DevicePrint({ 
+  signals: ['userAgent', 'platform', 'screenResolution', 'timezone', 'canvas']
+});
+```
+
+**Exclude Signals** - Use a preset but exclude specific signals
+```javascript
+const devicePrint = new DevicePrint({ 
+  signals: 'EXTENDED',
+  exclude: ['canvas', 'fonts', 'audio']  // Skip heavy operations
+});
+```
+
+**Available Presets List**
+```javascript
+console.log(DevicePrint.PRESETS.DEFAULT);   // Array of signal names
+console.log(DevicePrint.PRESETS.EXTENDED);  // Array of signal names
+console.log(DevicePrint.PRESETS.FULL);      // Array of signal names
 ```
 
 ### Getting Individual Components
@@ -148,31 +229,64 @@ All methods return immediately (synchronous) except `generate()`, `getCanvasFing
 
 ## Fingerprint Components
 
-The generated fingerprint includes:
+The generated fingerprint can include the following signals (depending on configuration):
 
-| Component | Description |
-|-----------|-------------|
-| `userAgent` | Browser identification string |
-| `language` | Browser/system language |
-| `colorDepth` | Screen color depth in bits |
-| `screenResolution` | Physical screen dimensions |
-| `availableScreenResolution` | Available screen space |
-| `timezoneOffset` | UTC offset in minutes |
-| `timezone` | IANA timezone identifier |
-| `sessionStorage` | SessionStorage support |
-| `localStorage` | LocalStorage support |
-| `indexedDB` | IndexedDB support |
-| `cpuClass` | CPU architecture class |
-| `platform` | Operating system |
-| `doNotTrack` | DNT header value |
-| `plugins` | Browser plugins list |
-| `canvas` | Canvas rendering hash |
-| `webgl` | WebGL vendor/renderer |
-| `webglVendor` | WebGL vendor only |
-| `adBlock` | Ad blocker presence |
-| `hasLiedLanguages` | Language inconsistencies |
-| `hasLiedResolution` | Resolution inconsistencies |
-| `hasLiedOs` | OS inconsistencies |
+### Core Signals (DEFAULT preset)
+
+| Component | Description | Preset |
+|-----------|-------------|--------|
+| `userAgent` | Browser identification string | DEFAULT |
+| `language` | Browser/system language | DEFAULT |
+| `colorDepth` | Screen color depth in bits | DEFAULT |
+| `screenResolution` | Physical screen dimensions | DEFAULT |
+| `availableScreenResolution` | Available screen space | DEFAULT |
+| `timezoneOffset` | UTC offset in minutes | DEFAULT |
+| `timezone` | IANA timezone identifier | DEFAULT |
+| `sessionStorage` | SessionStorage support | DEFAULT |
+| `localStorage` | LocalStorage support | DEFAULT |
+| `indexedDB` | IndexedDB support | DEFAULT |
+| `platform` | Operating system | DEFAULT |
+| `doNotTrack` | DNT header value | DEFAULT |
+| `plugins` | Browser plugins list | DEFAULT |
+| `canvas` | Canvas rendering hash | DEFAULT |
+| `webgl` | WebGL vendor/renderer | DEFAULT |
+| `webglVendor` | WebGL vendor only | DEFAULT |
+| `cookieEnabled` | Cookie support | DEFAULT |
+| `hardwareConcurrency` | Logical processors | DEFAULT |
+| `deviceMemory` | RAM capacity | DEFAULT |
+
+### Extended Signals (EXTENDED preset)
+
+| Component | Description | Preset |
+|-----------|-------------|--------|
+| `cpuClass` | CPU architecture class | EXTENDED |
+| `adBlock` | Ad blocker presence | EXTENDED |
+| `hasLiedLanguages` | Language inconsistencies | EXTENDED |
+| `hasLiedResolution` | Resolution inconsistencies | EXTENDED |
+| `hasLiedOs` | OS inconsistencies | EXTENDED |
+| `hasLiedBrowser` | Browser inconsistencies | EXTENDED |
+| `touchSupport` | Touch capabilities | EXTENDED |
+| `fonts` | Available system fonts | EXTENDED |
+| `audio` | Audio context signature | EXTENDED |
+| `mediaPreferences` | Dark mode, reduced motion, etc. | EXTENDED |
+| `localeInfo` | Detailed locale information | EXTENDED |
+| `screenOrientation` | Screen orientation type/angle | EXTENDED |
+| `pointerInfo` | Pointer capabilities | EXTENDED |
+| `mathFingerprint` | Math constants precision | EXTENDED |
+| `mediaSupport` | Video/audio codec support | EXTENDED |
+| `extendedWebGL` | Detailed WebGL parameters | EXTENDED |
+| `speechVoices` | Available speech synthesis voices | EXTENDED |
+
+### Full Signals (FULL preset - may require permissions)
+
+| Component | Description | Preset |
+|-----------|-------------|--------|
+| `networkInfo` | Connection type, speed, etc. | FULL |
+| `batteryInfo` | Battery status and level | FULL |
+| `mediaDevices` | Camera/microphone count | FULL |
+| `gamepads` | Connected gamepad information | FULL |
+| `performanceMetrics` | CPU performance benchmark | FULL |
+| `permissions` | Permissions status | FULL |
 | `hasLiedBrowser` | Browser inconsistencies |
 | `touchSupport` | Touch capabilities |
 | `fonts` | Available system fonts |
@@ -253,6 +367,30 @@ MIT License - See LICENSE file for details
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
+
+### 2.0.0 (2026-02-19)
+- ✨ **New**: Configurable signal collection with presets (DEFAULT, EXTENDED, FULL)
+- ✨ **New**: 20+ additional signals including:
+  - Media preferences (dark mode, reduced motion, high contrast)
+  - Detailed locale information
+  - Screen orientation
+  - Pointer capabilities
+  - Math constants fingerprinting
+  - Media codec support detection
+  - Extended WebGL parameters
+  - Speech synthesis voices
+  - Network information
+  - Battery status
+  - Media devices enumeration
+  - Performance benchmarking
+  - Permission statuses
+  - Gamepad detection
+- ✨ **New**: Custom signal selection and exclusion support
+- ✨ **New**: `DevicePrint.PRESETS` for accessing preset configurations
+- ✨ **New**: `signalsUsed` in generate() result
+- 📚 **Updated**: Comprehensive documentation with configuration examples
+- 🧪 **Updated**: Test suite expanded to 150+ tests
+- 🎨 **Updated**: Demo page with preset selector
 
 ### 1.0.0 (2026-02-19)
 - Initial release

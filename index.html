@@ -241,6 +241,34 @@
           everything runs locally in your browser.
         </div>
 
+        <div
+          style="
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          "
+        >
+          <h3 style="color: #667eea; margin-bottom: 15px">Configuration</h3>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap">
+            <label style="cursor: pointer">
+              <input type="radio" name="preset" value="DEFAULT" checked />
+              <strong>DEFAULT</strong> (Fast, 19 signals)
+            </label>
+            <label style="cursor: pointer">
+              <input type="radio" name="preset" value="EXTENDED" />
+              <strong>EXTENDED</strong> (Enhanced, 33 signals)
+            </label>
+            <label style="cursor: pointer">
+              <input type="radio" name="preset" value="FULL" />
+              <strong>FULL</strong> (All signals, may request permissions)
+            </label>
+          </div>
+          <p style="margin-top: 10px; font-size: 0.9rem; color: #666">
+            Choose the signal preset to use for fingerprinting
+          </p>
+        </div>
+
         <div class="button-container">
           <button id="generateBtn" onclick="generateFingerprint()">
             Generate Fingerprint
@@ -255,6 +283,21 @@
         <div id="result">
           <h2>Your Device Fingerprint</h2>
           <div class="fingerprint-display" id="fingerprintHash"></div>
+
+          <div
+            style="
+              background: #e8f4f8;
+              border-left: 4px solid #667eea;
+              padding: 15px;
+              margin-bottom: 20px;
+              border-radius: 4px;
+            "
+          >
+            <strong>Preset Used:</strong> <span id="presetUsed"></span>
+            <span style="margin-left: 15px"
+              ><strong>Signals Collected:</strong> <span id="signalsUsed"></span
+            ></span>
+          </div>
 
           <div class="stats">
             <div class="stat">
@@ -289,13 +332,23 @@
         result.style.display = "none";
 
         try {
-          // Create instance and generate fingerprint
-          const devicePrint = new DevicePrint();
+          // Get selected preset
+          const selectedPreset = document.querySelector(
+            'input[name="preset"]:checked',
+          ).value;
+
+          // Create instance with selected configuration
+          const devicePrint = new DevicePrint({ signals: selectedPreset });
           const fpResult = await devicePrint.generate();
 
           // Display fingerprint hash
           document.getElementById("fingerprintHash").textContent =
             fpResult.fingerprint;
+
+          // Display preset and signals used
+          document.getElementById("presetUsed").textContent = selectedPreset;
+          document.getElementById("signalsUsed").textContent =
+            fpResult.signalsUsed ? fpResult.signalsUsed.length : componentCount;
 
           // Display stats
           const componentCount = Object.keys(fpResult.components).length;

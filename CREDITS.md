@@ -2,7 +2,7 @@
 
 ## AI Generation Notice
 
-**This library was generated using AI** (GitHub Copilot with Claude Sonnet 4.5) in February 2026.
+**This library was generated using AI** in February 2026.
 
 ## Implementation
 

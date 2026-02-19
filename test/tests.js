@@ -681,6 +681,328 @@ const testSuites = [
       },
     ],
   },
+  {
+    name: "Configuration & Presets Tests",
+    tests: [
+      {
+        name: "Should use DEFAULT preset by default",
+        fn: async () => {
+          const dp = new DevicePrint();
+          assertArray(dp.enabledSignals, "Should have enabled signals array");
+          assert(
+            dp.enabledSignals.length > 0,
+            "Should have some signals enabled",
+          );
+        },
+      },
+      {
+        name: "Should accept DEFAULT preset by name",
+        fn: async () => {
+          const dp = new DevicePrint({ signals: "DEFAULT" });
+          assertArray(dp.enabledSignals, "Should have enabled signals array");
+          assert(
+            dp.enabledSignals.includes("userAgent"),
+            "Should include userAgent",
+          );
+        },
+      },
+      {
+        name: "Should accept EXTENDED preset",
+        fn: async () => {
+          const dp = new DevicePrint({ signals: "EXTENDED" });
+          assert(
+            dp.enabledSignals.length > 20,
+            "EXTENDED should have more signals",
+          );
+          assert(
+            dp.enabledSignals.includes("mediaPreferences"),
+            "Should include new signals",
+          );
+        },
+      },
+      {
+        name: "Should accept FULL preset",
+        fn: async () => {
+          const dp = new DevicePrint({ signals: "FULL" });
+          assert(
+            dp.enabledSignals.includes("batteryInfo"),
+            "FULL should include batteryInfo",
+          );
+          assert(
+            dp.enabledSignals.includes("permissions"),
+            "FULL should include permissions",
+          );
+        },
+      },
+      {
+        name: "Should accept custom signal array",
+        fn: async () => {
+          const dp = new DevicePrint({
+            signals: ["userAgent", "platform", "language"],
+          });
+          assertEqual(
+            dp.enabledSignals.length,
+            3,
+            "Should have exactly 3 signals",
+          );
+          assert(
+            dp.enabledSignals.includes("userAgent"),
+            "Should include userAgent",
+          );
+          assert(
+            !dp.enabledSignals.includes("canvas"),
+            "Should not include canvas",
+          );
+        },
+      },
+      {
+        name: "Should support exclude option",
+        fn: async () => {
+          const dp = new DevicePrint({
+            signals: "DEFAULT",
+            exclude: ["canvas", "webgl"],
+          });
+          assert(
+            !dp.enabledSignals.includes("canvas"),
+            "Should exclude canvas",
+          );
+          assert(!dp.enabledSignals.includes("webgl"), "Should exclude webgl");
+          assert(
+            dp.enabledSignals.includes("userAgent"),
+            "Should still include others",
+          );
+        },
+      },
+      {
+        name: "isSignalEnabled should work correctly",
+        fn: async () => {
+          const dp = new DevicePrint({ signals: ["userAgent", "platform"] });
+          assert(
+            dp.isSignalEnabled("userAgent"),
+            "Should return true for enabled signal",
+          );
+          assert(
+            !dp.isSignalEnabled("canvas"),
+            "Should return false for disabled signal",
+          );
+        },
+      },
+      {
+        name: "generate should include signalsUsed in result",
+        fn: async () => {
+          const dp = new DevicePrint({ signals: ["userAgent", "platform"] });
+          const result = await dp.generate();
+          assert("signalsUsed" in result, "Result should have signalsUsed");
+          assertArray(result.signalsUsed, "signalsUsed should be an array");
+        },
+      },
+      {
+        name: "Should only collect enabled signals",
+        fn: async () => {
+          const dp = new DevicePrint({
+            signals: ["userAgent", "platform", "language"],
+          });
+          await dp.collectComponents();
+
+          const keys = Object.keys(dp.components);
+          assert(keys.includes("userAgent"), "Should have userAgent");
+          assert(keys.includes("platform"), "Should have platform");
+          assert(!keys.includes("canvas"), "Should not have canvas");
+        },
+      },
+    ],
+  },
+  {
+    name: "New Signals Tests",
+    tests: [
+      {
+        name: "getMediaPreferences should return object or not supported",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getMediaPreferences();
+          assert(result !== null, "Should return a value");
+        },
+      },
+      {
+        name: "getLocaleInfo should return object",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getLocaleInfo();
+          assert(result !== null, "Should return locale info");
+        },
+      },
+      {
+        name: "getScreenOrientation should return value",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getScreenOrientation();
+          assertNotNull(result, "Should return orientation");
+        },
+      },
+      {
+        name: "getPointerInfo should return object",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getPointerInfo();
+          assertType(result, "object", "Should return object");
+        },
+      },
+      {
+        name: "getMathFingerprint should return math constants",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getMathFingerprint();
+          assertType(result, "object", "Should return object");
+          assert("pi" in result, "Should have pi constant");
+          assert("e" in result, "Should have e constant");
+        },
+      },
+      {
+        name: "getMediaSupport should return codec support",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getMediaSupport();
+          assert(result !== null, "Should return media support info");
+        },
+      },
+      {
+        name: "getExtendedWebGLInfo should return extended info",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getExtendedWebGLInfo();
+          assertNotNull(result, "Should return WebGL info");
+        },
+      },
+      {
+        name: "getSpeechVoices should return array or not supported",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getSpeechVoices();
+          assert(result !== null, "Should return voices info");
+        },
+      },
+      {
+        name: "getNetworkInfo should return value",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getNetworkInfo();
+          assertNotNull(result, "Should return network info");
+        },
+      },
+      {
+        name: "getGamepads should return array or not supported",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = dp.getGamepads();
+          assertNotNull(result, "Should return gamepads info");
+        },
+      },
+      {
+        name: "getBatteryInfo should return value (async)",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = await dp.getBatteryInfo();
+          assertNotNull(result, "Should return battery info");
+        },
+      },
+      {
+        name: "getMediaDevices should return value (async)",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = await dp.getMediaDevices();
+          assertNotNull(result, "Should return media devices info");
+        },
+      },
+      {
+        name: "getPerformanceMetrics should return metrics (async)",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = await dp.getPerformanceMetrics();
+          assertNotNull(result, "Should return performance metrics");
+        },
+      },
+      {
+        name: "getPermissions should return permissions (async)",
+        fn: async () => {
+          const dp = new DevicePrint();
+          const result = await dp.getPermissions();
+          assertNotNull(result, "Should return permissions info");
+        },
+      },
+    ],
+  },
+  {
+    name: "Preset Exports Tests",
+    tests: [
+      {
+        name: "PRESETS should be exported",
+        fn: async () => {
+          assert(
+            "PRESETS" in DevicePrint,
+            "DevicePrint should have PRESETS property",
+          );
+          assertType(
+            DevicePrint.PRESETS,
+            "object",
+            "PRESETS should be an object",
+          );
+        },
+      },
+      {
+        name: "PRESETS should have DEFAULT",
+        fn: async () => {
+          assert(
+            "DEFAULT" in DevicePrint.PRESETS,
+            "Should have DEFAULT preset",
+          );
+          assertArray(
+            DevicePrint.PRESETS.DEFAULT,
+            "DEFAULT should be an array",
+          );
+        },
+      },
+      {
+        name: "PRESETS should have EXTENDED",
+        fn: async () => {
+          assert(
+            "EXTENDED" in DevicePrint.PRESETS,
+            "Should have EXTENDED preset",
+          );
+          assertArray(
+            DevicePrint.PRESETS.EXTENDED,
+            "EXTENDED should be an array",
+          );
+        },
+      },
+      {
+        name: "PRESETS should have FULL",
+        fn: async () => {
+          assert("FULL" in DevicePrint.PRESETS, "Should have FULL preset");
+          assertArray(DevicePrint.PRESETS.FULL, "FULL should be an array");
+        },
+      },
+      {
+        name: "EXTENDED should have more signals than DEFAULT",
+        fn: async () => {
+          assert(
+            DevicePrint.PRESETS.EXTENDED.length >
+              DevicePrint.PRESETS.DEFAULT.length,
+            "EXTENDED should have more signals than DEFAULT",
+          );
+        },
+      },
+      {
+        name: "FULL should have more signals than EXTENDED",
+        fn: async () => {
+          assert(
+            DevicePrint.PRESETS.FULL.length >
+              DevicePrint.PRESETS.EXTENDED.length,
+            "FULL should have more signals than EXTENDED",
+          );
+        },
+      },
+    ],
+  },
 ];
 
 console.log(
