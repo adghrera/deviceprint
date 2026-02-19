@@ -4,7 +4,12 @@
   "description": "A JavaScript library for computing unique device fingerprints based on browser and device characteristics",
   "main": "src/deviceprint.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/node-test.js",
+    "test:browser": "echo \"Open test/test.html in your browser to run tests\"",
+    "demo": "echo \"Open index.html in your browser to see the demo\""
+  },
+  "directories": {
+    "test": "test"
   },
   "keywords": [
     "fingerprint",

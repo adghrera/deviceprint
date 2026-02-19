@@ -193,6 +193,27 @@ DevicePrint works in all modern browsers:
 
 Some features may not be available in older browsers (they will return 'not supported' or 'unknown').
 
+## Testing
+
+DevicePrint includes a comprehensive test suite with **100+ tests** covering all functionality.
+
+### Running Tests
+
+Open [test/test.html](test/test.html) in your browser to run the interactive test suite.
+
+The test suite covers:
+- ✅ Initialization and instantiation
+- ✅ Browser information collection
+- ✅ Display properties detection
+- ✅ Canvas, WebGL, and Audio fingerprinting
+- ✅ Font detection
+- ✅ Hardware information
+- ✅ Hash generation and consistency
+- ✅ Integration tests
+- ✅ Edge cases and error handling
+
+For detailed information, see [test/README.md](test/README.md).
+
 ## Privacy Considerations
 
 Device fingerprinting can be used for both legitimate purposes (fraud detection, security) and privacy-invasive tracking. Please use this library responsibly:
