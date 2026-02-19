@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevicePrint - Demo</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        color: white;
+        margin-bottom: 40px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+      }
+
+      .button-container {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .fingerprint-display {
+        background: #f8f9fa;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        padding: 20px;
+        word-break: break-all;
+        font-family: "Courier New", monospace;
+        font-size: 1.2rem;
+        text-align: center;
+        color: #667eea;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+
+      .loading {
+        text-align: center;
+        color: #667eea;
+        font-size: 1.1rem;
+        padding: 20px;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .components {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .component {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+      }
+
+      .component-title {
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .component-value {
+        color: #555;
+        word-break: break-word;
+        font-size: 0.95rem;
+      }
+
+      .component-value code {
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+      }
+
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .stat {
+        text-align: center;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        flex: 1;
+        min-width: 150px;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      #result {
+        display: none;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      pre {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-size: 0.85rem;
+      }
+
+      h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+      }
+
+      .alert {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .alert strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🔍 DevicePrint</h1>
+        <p class="subtitle">Generate a unique fingerprint for your device</p>
+      </header>
+
+      <div class="card">
+        <div class="alert">
+          <strong>⚠️ Privacy Notice</strong>
+          This demo collects various browser and device characteristics to
+          generate a unique fingerprint. No data is sent to any server -
+          everything runs locally in your browser.
+        </div>
+
+        <div class="button-container">
+          <button id="generateBtn" onclick="generateFingerprint()">
+            Generate Fingerprint
+          </button>
+        </div>
+
+        <div id="loading" class="loading hidden">
+          <div class="spinner"></div>
+          <p>Analyzing your device...</p>
+        </div>
+
+        <div id="result">
+          <h2>Your Device Fingerprint</h2>
+          <div class="fingerprint-display" id="fingerprintHash"></div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-value" id="componentCount">0</div>
+              <div class="stat-label">Components Analyzed</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value" id="uniquenessScore">0%</div>
+              <div class="stat-label">Uniqueness Score</div>
+            </div>
+          </div>
+
+          <h2>Collected Components</h2>
+          <div class="components" id="components"></div>
+
+          <h2>Full JSON Output</h2>
+          <pre id="jsonOutput"></pre>
+        </div>
+      </div>
+    </div>
+
+    <script src="src/deviceprint.js"></script>
+    <script>
+      async function generateFingerprint() {
+        const btn = document.getElementById("generateBtn");
+        const loading = document.getElementById("loading");
+        const result = document.getElementById("result");
+
+        // Show loading state
+        btn.disabled = true;
+        loading.classList.remove("hidden");
+        result.style.display = "none";
+
+        try {
+          // Create instance and generate fingerprint
+          const devicePrint = new DevicePrint();
+          const fpResult = await devicePrint.generate();
+
+          // Display fingerprint hash
+          document.getElementById("fingerprintHash").textContent =
+            fpResult.fingerprint;
+
+          // Display stats
+          const componentCount = Object.keys(fpResult.components).length;
+          document.getElementById("componentCount").textContent =
+            componentCount;
+
+          // Calculate a mock uniqueness score (in reality, this would require server-side comparison)
+          const uniquenessScore = Math.min(
+            95,
+            Math.floor(50 + fpResult.fingerprint.length * 0.5),
+          );
+          document.getElementById("uniquenessScore").textContent =
+            uniquenessScore + "%";
+
+          // Display components
+          displayComponents(fpResult.components);
+
+          // Display full JSON
+          document.getElementById("jsonOutput").textContent = JSON.stringify(
+            fpResult,
+            null,
+            2,
+          );
+
+          // Show results
+          loading.classList.add("hidden");
+          result.style.display = "block";
+          btn.disabled = false;
+        } catch (error) {
+          console.error("Error generating fingerprint:", error);
+          alert(
+            "Error generating fingerprint. Please check the console for details.",
+          );
+          loading.classList.add("hidden");
+          btn.disabled = false;
+        }
+      }
+
+      function displayComponents(components) {
+        const container = document.getElementById("components");
+        container.innerHTML = "";
+
+        for (const [key, value] of Object.entries(components)) {
+          const component = document.createElement("div");
+          component.className = "component";
+
+          const title = document.createElement("div");
+          title.className = "component-title";
+          title.textContent = formatTitle(key);
+
+          const valueDiv = document.createElement("div");
+          valueDiv.className = "component-value";
+          valueDiv.innerHTML = formatValue(value);
+
+          component.appendChild(title);
+          component.appendChild(valueDiv);
+          container.appendChild(component);
+        }
+      }
+
+      function formatTitle(key) {
+        return key
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (str) => str.toUpperCase())
+          .trim();
+      }
+
+      function formatValue(value) {
+        if (value === null || value === undefined) {
+          return "<code>null</code>";
+        }
+
+        if (typeof value === "boolean") {
+          return value ? "✅ Yes" : "❌ No";
+        }
+
+        if (Array.isArray(value)) {
+          if (value.length === 0) {
+            return "<code>[]</code>";
+          }
+          if (typeof value[0] === "object") {
+            return value.map((v) => v.name || JSON.stringify(v)).join(", ");
+          }
+          return value.join(", ");
+        }
+
+        if (typeof value === "object") {
+          return JSON.stringify(value, null, 2);
+        }
+
+        if (typeof value === "string" && value.startsWith("data:image")) {
+          return "<code>[Canvas Image Data]</code>";
+        }
+
+        return String(value);
+      }
+    </script>
+  </body>
+</html>

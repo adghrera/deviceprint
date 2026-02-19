@@ -1,0 +1,30 @@
+{
+  "name": "deviceprint",
+  "version": "1.0.0",
+  "description": "A JavaScript library for computing unique device fingerprints based on browser and device characteristics",
+  "main": "src/deviceprint.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "fingerprint",
+    "device",
+    "browser",
+    "tracking",
+    "identification",
+    "canvas",
+    "webgl",
+    "audio",
+    "security"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/deviceprint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/deviceprint/issues"
+  },
+  "homepage": "https://github.com/yourusername/deviceprint#readme"
+}
