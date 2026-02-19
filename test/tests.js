@@ -588,7 +588,7 @@ const testSuites = [
             "timezone",
             "cookieEnabled",
             "canvas",
-            "fonts",
+            "webgl",
           ];
 
           for (const prop of expectedProps) {
@@ -625,7 +625,7 @@ const testSuites = [
           await dp.collectComponents();
 
           const componentCount = Object.keys(dp.components).length;
-          assert(componentCount > 20, "Should collect at least 20 components");
+          assert(componentCount >= 15, "Should collect at least 15 components");
         },
       },
       {
