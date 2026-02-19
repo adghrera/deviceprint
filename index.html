@@ -355,13 +355,8 @@
           document.getElementById("componentCount").textContent =
             componentCount;
 
-          // Calculate a mock uniqueness score (in reality, this would require server-side comparison)
-          const uniquenessScore = Math.min(
-            95,
-            Math.floor(50 + fpResult.fingerprint.length * 0.5),
-          );
-          document.getElementById("uniquenessScore").textContent =
-            uniquenessScore + "%";
+          // Display uniqueness score (in reality, this would require server-side comparison)
+          document.getElementById("uniquenessScore").textContent = "High";
 
           // Display components
           displayComponents(fpResult.components);
