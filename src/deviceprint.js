@@ -1006,8 +1006,6 @@
         if (conn) {
           return {
             effectiveType: conn.effectiveType,
-            downlink: conn.downlink,
-            rtt: conn.rtt,
             saveData: conn.saveData,
           };
         }
@@ -1046,15 +1044,6 @@
           const battery = await navigator.getBattery();
           return {
             charging: battery.charging,
-            level: Math.floor(battery.level * 100),
-            chargingTime:
-              battery.chargingTime === Infinity
-                ? "Infinity"
-                : battery.chargingTime,
-            dischargingTime:
-              battery.dischargingTime === Infinity
-                ? "Infinity"
-                : battery.dischargingTime,
           };
         }
         return "not supported";
@@ -1097,17 +1086,15 @@
             Math.sqrt(iterations++);
           }
 
+          // Round iterations to nearest 1000 for stability
           const result = {
-            iterations,
-            timing: performance.now() - start,
+            iterations: Math.round(iterations / 1000) * 1000,
           };
 
-          // Add memory info if available
+          // Add memory limits if available (not current usage)
           if (performance.memory) {
             result.memory = {
               jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
-              totalJSHeapSize: performance.memory.totalJSHeapSize,
-              usedJSHeapSize: performance.memory.usedJSHeapSize,
             };
           }
 
