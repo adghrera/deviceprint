@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Debug FULL Preset Stability</title>
+    <style>
+      body {
+        font-family: monospace;
+        padding: 20px;
+        background: #1e1e1e;
+        color: #d4d4d4;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 10px 0;
+        cursor: pointer;
+      }
+      .result {
+        margin: 20px 0;
+        padding: 10px;
+        background: #2d2d2d;
+        border-radius: 4px;
+      }
+      .diff {
+        color: #f48771;
+        font-weight: bold;
+      }
+      .same {
+        color: #4ec9b0;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FULL Preset Stability Debugger</h1>
+    <button onclick="runTest()">Run Test (3 iterations)</button>
+    <div id="output"></div>
+
+    <script src="src/deviceprint.js"></script>
+    <script>
+      async function runTest() {
+        const output = document.getElementById("output");
+        output.innerHTML = "<p>Running test...</p>";
+
+        const results = [];
+
+        // Generate fingerprint 3 times
+        for (let i = 0; i < 3; i++) {
+          const dp = new DevicePrint({ signals: "FULL" });
+          const result = await dp.generate();
+          results.push(result);
+
+          output.innerHTML += `<div class="result">
+                    <strong>Iteration ${i + 1}:</strong><br>
+                    Fingerprint: ${result.fingerprint}<br>
+                    Components: ${Object.keys(result.components).length}
+                </div>`;
+
+          // Small delay between iterations
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        // Compare results
+        output.innerHTML += "<h2>Comparison Analysis:</h2>";
+
+        const allSame = results.every(
+          (r) => r.fingerprint === results[0].fingerprint,
+        );
+
+        if (allSame) {
+          output.innerHTML += `<div class="result same">✅ All fingerprints are identical!</div>`;
+        } else {
+          output.innerHTML += `<div class="result diff">❌ Fingerprints differ!</div>`;
+
+          // Find which components are changing
+          const componentKeys = Object.keys(results[0].components);
+          const changingComponents = [];
+
+          for (const key of componentKeys) {
+            const values = results.map((r) =>
+              JSON.stringify(r.components[key]),
+            );
+            const allValuesMatch = values.every((v) => v === values[0]);
+
+            if (!allValuesMatch) {
+              changingComponents.push({
+                key,
+                values: results.map((r, i) => ({
+                  iteration: i + 1,
+                  value: r.components[key],
+                })),
+              });
+            }
+          }
+
+          if (changingComponents.length > 0) {
+            output.innerHTML += "<h3>Changing Components:</h3>";
+            for (const comp of changingComponents) {
+              output.innerHTML += `<div class="result diff">
+                            <strong>${comp.key}:</strong><br>
+                            <pre>${JSON.stringify(comp.values, null, 2)}</pre>
+                        </div>`;
+            }
+          } else {
+            output.innerHTML +=
+              "<p>No individual components changed, but fingerprint hash differs (possible key order issue)</p>";
+
+            // Show component keys order for each iteration
+            output.innerHTML += "<h3>Component Keys Order:</h3>";
+            results.forEach((r, i) => {
+              output.innerHTML += `<div class="result">
+                            <strong>Iteration ${i + 1}:</strong><br>
+                            <pre>${Object.keys(r.components).join(", ")}</pre>
+                        </div>`;
+            });
+          }
+        }
+
+        // Show full JSONs
+        output.innerHTML += "<h2>Full Results:</h2>";
+        results.forEach((r, i) => {
+          output.innerHTML += `<div class="result">
+                    <strong>Iteration ${i + 1}:</strong><br>
+                    <pre>${JSON.stringify(r, null, 2)}</pre>
+                </div>`;
+        });
+      }
+    </script>
+  </body>
+</html>

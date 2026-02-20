@@ -259,8 +259,6 @@
         this.components.mediaSupport = this.getMediaSupport();
       if (this.isSignalEnabled("extendedWebGL"))
         this.components.extendedWebGL = this.getExtendedWebGLInfo();
-      if (this.isSignalEnabled("speechVoices"))
-        this.components.speechVoices = this.getSpeechVoices();
       if (this.isSignalEnabled("networkInfo"))
         this.components.networkInfo = this.getNetworkInfo();
       if (this.isSignalEnabled("gamepads"))
@@ -309,6 +307,13 @@
           }),
         );
       }
+      if (this.isSignalEnabled("speechVoices")) {
+        signalPromises.push(
+          this.getSpeechVoices().then((r) => {
+            this.components.speechVoices = r;
+          }),
+        );
+      }
 
       // Wait for all async signals
       await Promise.all(signalPromises);
@@ -318,7 +323,15 @@
      * Compute hash from components
      */
     async computeHash() {
-      const componentString = JSON.stringify(this.components);
+      // Sort keys to ensure consistent ordering regardless of async completion order
+      const sortedComponents = {};
+      Object.keys(this.components)
+        .sort()
+        .forEach((key) => {
+          sortedComponents[key] = this.components[key];
+        });
+
+      const componentString = JSON.stringify(sortedComponents);
 
       // Use SubtleCrypto if available
       if (window.crypto && window.crypto.subtle) {
@@ -978,20 +991,54 @@
     /**
      * Get speech synthesis voices
      */
-    getSpeechVoices() {
-      try {
-        if ("speechSynthesis" in window) {
-          const voices = speechSynthesis.getVoices();
-          return voices.map((v) => ({
-            name: v.name,
-            lang: v.lang,
-            localService: v.localService,
-          }));
+    async getSpeechVoices() {
+      return new Promise((resolve) => {
+        try {
+          if (!("speechSynthesis" in window)) {
+            resolve("not supported");
+            return;
+          }
+
+          const getVoices = () => {
+            const voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              resolve(
+                voices.map((v) => ({
+                  name: v.name,
+                  lang: v.lang,
+                  localService: v.localService,
+                })),
+              );
+            } else {
+              // Wait for voiceschanged event
+              const timeout = setTimeout(() => {
+                // If no voices after timeout, return empty array
+                resolve([]);
+              }, 100);
+
+              speechSynthesis.addEventListener(
+                "voiceschanged",
+                () => {
+                  clearTimeout(timeout);
+                  const voices = speechSynthesis.getVoices();
+                  resolve(
+                    voices.map((v) => ({
+                      name: v.name,
+                      lang: v.lang,
+                      localService: v.localService,
+                    })),
+                  );
+                },
+                { once: true },
+              );
+            }
+          };
+
+          getVoices();
+        } catch (e) {
+          resolve("not supported");
         }
-        return "not supported";
-      } catch (e) {
-        return "not supported";
-      }
+      });
     }
 
     /**
@@ -1023,13 +1070,15 @@
         if (!navigator.getGamepads) return "not supported";
 
         const gamepads = navigator.getGamepads();
-        return Array.from(gamepads)
-          .filter((g) => g)
-          .map((g) => ({
-            id: g.id,
-            buttons: g.buttons.length,
-            axes: g.axes.length,
-          }));
+        const connected = Array.from(gamepads).filter((g) => g);
+
+        // Only return count and IDs, not button states which can vary
+        return connected.length > 0
+          ? {
+              count: connected.length,
+              ids: connected.map((g) => g.id).sort(),
+            }
+          : { count: 0 };
       } catch (e) {
         return "not supported";
       }
@@ -1078,27 +1127,21 @@
     async getPerformanceMetrics() {
       return new Promise((resolve) => {
         try {
-          const start = performance.now();
-          let iterations = 0;
-          const endTime = start + 10; // 10ms benchmark
+          const result = {};
 
-          while (performance.now() < endTime) {
-            Math.sqrt(iterations++);
-          }
-
-          // Round iterations to nearest 1000 for stability
-          const result = {
-            iterations: Math.round(iterations / 1000) * 1000,
-          };
-
-          // Add memory limits if available (not current usage)
+          // Only include stable memory limits if available (not current usage)
           if (performance.memory) {
             result.memory = {
               jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
             };
           }
 
-          resolve(result);
+          // Add hardware concurrency as a stable performance indicator
+          if (navigator.hardwareConcurrency) {
+            result.hardwareConcurrency = navigator.hardwareConcurrency;
+          }
+
+          resolve(Object.keys(result).length > 0 ? result : "not supported");
         } catch (e) {
           resolve("not supported");
         }

@@ -874,10 +874,10 @@ const testSuites = [
         },
       },
       {
-        name: "getSpeechVoices should return array or not supported",
+        name: "getSpeechVoices should return array or not supported (async)",
         fn: async () => {
           const dp = new DevicePrint();
-          const result = dp.getSpeechVoices();
+          const result = await dp.getSpeechVoices();
           assert(result !== null, "Should return voices info");
         },
       },
