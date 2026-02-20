@@ -92,22 +92,28 @@ devicePrint.generate().then(result => {
 
 DevicePrint supports three preset configurations:
 
-**DEFAULT** - Fast, privacy-respecting signals (no permissions required)
+**DEFAULT** - Stable signals that persist across browser/driver updates (21 signals)
 ```javascript
 const devicePrint = new DevicePrint({ signals: 'DEFAULT' });
-// Includes: userAgent, language, screen info, timezone, canvas, webgl, etc.
+// Includes: language, screen info, timezone, fonts, hardware, user preferences
+// EXCLUDES: userAgent, canvas, webgl (version-sensitive signals)
+// ✅ Best for: Long-term device tracking across updates
 ```
 
-**EXTENDED** - Additional signals for better uniqueness
+**EXTENDED** - Adds version-sensitive signals for better uniqueness (37 signals)
 ```javascript
 const devicePrint = new DevicePrint({ signals: 'EXTENDED' });
-// Adds: media preferences, locale info, fonts, audio, codec support, etc.
+// Adds: userAgent, canvas, webgl, audio, plugins, codec support
+// ⚠️  May change when: Browser or GPU drivers are updated
+// ✅ Best for: Maximum uniqueness without permissions
 ```
 
-**FULL** - All available signals (may request permissions)
+**FULL** - All available signals including dynamic data (43 signals)
 ```javascript
 const devicePrint = new DevicePrint({ signals: 'FULL' });
-// Adds: battery, network info, media devices, permissions, etc.
+// Adds: battery, network info, media devices, permissions
+// ⚠️  May request permissions and include time-varying data
+// ✅ Best for: Comprehensive fingerprinting with user consent
 ```
 
 **Custom Signals** - Choose specific signals
@@ -231,69 +237,68 @@ All methods return immediately (synchronous) except `generate()`, `getCanvasFing
 
 The generated fingerprint can include the following signals (depending on configuration):
 
-### Core Signals (DEFAULT preset)
+### Stable Signals (DEFAULT preset) - 21 signals
 
-| Component | Description | Preset |
-|-----------|-------------|--------|
-| `userAgent` | Browser identification string | DEFAULT |
-| `language` | Browser/system language | DEFAULT |
-| `colorDepth` | Screen color depth in bits | DEFAULT |
-| `screenResolution` | Physical screen dimensions | DEFAULT |
-| `availableScreenResolution` | Available screen space | DEFAULT |
-| `timezoneOffset` | UTC offset in minutes | DEFAULT |
-| `timezone` | IANA timezone identifier | DEFAULT |
-| `sessionStorage` | SessionStorage support | DEFAULT |
-| `localStorage` | LocalStorage support | DEFAULT |
-| `indexedDB` | IndexedDB support | DEFAULT |
-| `platform` | Operating system | DEFAULT |
-| `doNotTrack` | DNT header value | DEFAULT |
-| `plugins` | Browser plugins list | DEFAULT |
-| `canvas` | Canvas rendering hash | DEFAULT |
-| `webgl` | WebGL vendor/renderer | DEFAULT |
-| `webglVendor` | WebGL vendor only | DEFAULT |
-| `cookieEnabled` | Cookie support | DEFAULT |
-| `hardwareConcurrency` | Logical processors | DEFAULT |
-| `deviceMemory` | RAM capacity | DEFAULT |
+**These signals remain consistent across browser/driver updates:**
 
-### Extended Signals (EXTENDED preset)
+| Component | Description | Why Stable |
+|-----------|-------------|------------|
+| `language` | Browser/system language | User preference |
+| `colorDepth` | Screen color depth in bits | Hardware |
+| `screenResolution` | Physical screen dimensions | Hardware |
+| `availableScreenResolution` | Available screen space | Hardware |
+| `timezoneOffset` | UTC offset in minutes | Location |
+| `timezone` | IANA timezone identifier | Location |
+| `sessionStorage` | SessionStorage support | Feature detection |
+| `localStorage` | LocalStorage support | Feature detection |
+| `indexedDB` | IndexedDB support | Feature detection |
+| `platform` | Operating system | System |
+| `doNotTrack` | DNT header value | User preference |
+| `cookieEnabled` | Cookie support | User preference |
+| `hardwareConcurrency` | Logical processors | Hardware |
+| `deviceMemory` | RAM capacity | Hardware |
+| `touchSupport` | Touch capabilities | Hardware |
+| `fonts` | Available system fonts | Installed fonts |
+| `localeInfo` | Detailed locale information | System settings |
+| `screenOrientation` | Screen orientation type | Hardware |
+| `mathFingerprint` | Math constants precision | System/architecture |
+| `mediaPreferences` | Dark mode, reduced motion | User preferences |
+| `pointerInfo` | Pointer capabilities | Hardware |
 
-| Component | Description | Preset |
-|-----------|-------------|--------|
-| `cpuClass` | CPU architecture class | EXTENDED |
-| `adBlock` | Ad blocker presence | EXTENDED |
-| `hasLiedLanguages` | Language inconsistencies | EXTENDED |
-| `hasLiedResolution` | Resolution inconsistencies | EXTENDED |
-| `hasLiedOs` | OS inconsistencies | EXTENDED |
-| `hasLiedBrowser` | Browser inconsistencies | EXTENDED |
-| `touchSupport` | Touch capabilities | EXTENDED |
-| `fonts` | Available system fonts | EXTENDED |
-| `audio` | Audio context signature | EXTENDED |
-| `mediaPreferences` | Dark mode, reduced motion, etc. | EXTENDED |
-| `localeInfo` | Detailed locale information | EXTENDED |
-| `screenOrientation` | Screen orientation type/angle | EXTENDED |
-| `pointerInfo` | Pointer capabilities | EXTENDED |
-| `mathFingerprint` | Math constants precision | EXTENDED |
-| `mediaSupport` | Video/audio codec support | EXTENDED |
-| `extendedWebGL` | Detailed WebGL parameters | EXTENDED |
-| `speechVoices` | Available speech synthesis voices | EXTENDED |
+### Version-Sensitive Signals (EXTENDED preset adds 16 more)
 
-### Full Signals (FULL preset - may require permissions)
+**These signals may change when browser/drivers are updated:**
 
-| Component | Description | Preset |
-|-----------|-------------|--------|
-| `networkInfo` | Connection type, speed, etc. | FULL |
-| `batteryInfo` | Battery status and level | FULL |
-| `mediaDevices` | Camera/microphone count | FULL |
-| `gamepads` | Connected gamepad information | FULL |
-| `performanceMetrics` | CPU performance benchmark | FULL |
-| `permissions` | Permissions status | FULL |
-| `hasLiedBrowser` | Browser inconsistencies |
-| `touchSupport` | Touch capabilities |
-| `fonts` | Available system fonts |
-| `audio` | Audio context signature |
-| `hardwareConcurrency` | Logical processors |
-| `deviceMemory` | RAM capacity |
-| `cookieEnabled` | Cookie support |
+| Component | Description | Changes When |
+|-----------|-------------|-------------|
+| `userAgent` | Browser identification string | Browser updates |
+| `plugins` | Browser plugins list | Browser updates |
+| `canvas` | Canvas rendering hash | Browser/GPU driver updates |
+| `webgl` | WebGL vendor/renderer | GPU driver updates |
+| `webglVendor` | WebGL vendor only | GPU driver updates |
+| `audio` | Audio context signature | Browser/audio driver updates |
+| `cpuClass` | CPU architecture class | Rare |
+| `adBlock` | Ad blocker presence | Extension changes |
+| `hasLiedLanguages` | Language inconsistencies | Spoofing detection |
+| `hasLiedResolution` | Resolution inconsistencies | Spoofing detection |
+| `hasLiedOs` | OS inconsistencies | Spoofing detection |
+| `hasLiedBrowser` | Browser inconsistencies | Spoofing detection |
+| `mediaSupport` | Video/audio codec support | Browser updates |
+| `extendedWebGL` | Detailed WebGL parameters | GPU driver updates |
+| `speechVoices` | Available speech synthesis voices | OS/browser updates |
+
+### Dynamic/Permission Signals (FULL preset adds 6 more)
+
+**These signals may require permissions or vary over time:**
+
+| Component | Description | Notes |
+|-----------|-------------|-------|
+| `networkInfo` | Connection type (WiFi/4G/5G) | Changes with network |
+| `batteryInfo` | Battery charging status | May request permission |
+| `mediaDevices` | Camera/microphone count | Requires permission |
+| `gamepads` | Connected gamepad information | Changes when devices connect |
+| `performanceMetrics` | Hardware limits | Stable system info |
+| `permissions` | Permissions status | Permission-dependent |
 
 ## Browser Compatibility
 

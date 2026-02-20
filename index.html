@@ -253,19 +253,21 @@
           <div style="display: flex; gap: 15px; flex-wrap: wrap">
             <label style="cursor: pointer">
               <input type="radio" name="preset" value="DEFAULT" checked />
-              <strong>DEFAULT</strong> (Fast, 19 signals)
+              <strong>DEFAULT</strong> (Stable, 21 signals)
             </label>
             <label style="cursor: pointer">
               <input type="radio" name="preset" value="EXTENDED" />
-              <strong>EXTENDED</strong> (Enhanced, 33 signals)
+              <strong>EXTENDED</strong> (Enhanced, 37 signals)
             </label>
             <label style="cursor: pointer">
               <input type="radio" name="preset" value="FULL" />
-              <strong>FULL</strong> (All signals, may request permissions)
+              <strong>FULL</strong> (All signals, 43 total)
             </label>
           </div>
           <p style="margin-top: 10px; font-size: 0.9rem; color: #666">
-            Choose the signal preset to use for fingerprinting
+            DEFAULT: Persists across browser/driver updates<br />
+            EXTENDED: Adds version-sensitive signals (canvas, webgl)<br />
+            FULL: Includes permission-dependent signals
           </p>
         </div>
 

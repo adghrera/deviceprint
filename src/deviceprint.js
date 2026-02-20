@@ -1,6 +1,6 @@
 /**
  * DevicePrint - A JavaScript library for computing device fingerprints
- * @version 2.0.0
+ * @version 3.0.0
  *
  * Generated using AI
  *
@@ -19,9 +19,8 @@
    * Signal configuration presets
    */
   const SIGNAL_PRESETS = {
-    // Fast, privacy-respecting signals (no permissions required)
+    // Stable signals that persist across browser/driver updates (no version-sensitive data)
     DEFAULT: [
-      "userAgent",
       "language",
       "colorDepth",
       "screenResolution",
@@ -33,16 +32,19 @@
       "indexedDB",
       "platform",
       "doNotTrack",
-      "plugins",
-      "canvas",
-      "webgl",
-      "webglVendor",
       "cookieEnabled",
       "hardwareConcurrency",
       "deviceMemory",
+      "touchSupport",
+      "fonts",
+      "localeInfo",
+      "screenOrientation",
+      "mathFingerprint",
+      "mediaPreferences",
+      "pointerInfo",
     ],
 
-    // Includes additional signals for better uniqueness
+    // Includes version-sensitive signals for better uniqueness (canvas, webgl, userAgent)
     EXTENDED: [
       "userAgent",
       "language",
@@ -82,7 +84,7 @@
       "speechVoices",
     ],
 
-    // All available signals (may request permissions)
+    // All available signals (may request permissions, includes dynamic data)
     FULL: [
       "userAgent",
       "language",

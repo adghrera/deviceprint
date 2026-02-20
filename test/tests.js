@@ -580,15 +580,15 @@ const testSuites = [
           const dp = new DevicePrint();
           const result = await dp.generate();
           const expectedProps = [
-            "userAgent",
             "language",
             "colorDepth",
             "screenResolution",
             "platform",
             "timezone",
             "cookieEnabled",
-            "canvas",
-            "webgl",
+            "hardwareConcurrency",
+            "fonts",
+            "touchSupport",
           ];
 
           for (const prop of expectedProps) {
@@ -701,8 +701,12 @@ const testSuites = [
           const dp = new DevicePrint({ signals: "DEFAULT" });
           assertArray(dp.enabledSignals, "Should have enabled signals array");
           assert(
-            dp.enabledSignals.includes("userAgent"),
-            "Should include userAgent",
+            dp.enabledSignals.includes("language"),
+            "Should include language",
+          );
+          assert(
+            !dp.enabledSignals.includes("userAgent"),
+            "Should NOT include userAgent (stable preset)",
           );
         },
       },
